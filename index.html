@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Pixel Art Generator</title>
+<style>
+  body{background:#1a1a2e;display:flex;flex-direction:column;align-items:center;font-family:sans-serif;color:#eee;}
+  h1{color:#e94560;margin:20px;}
+  #controls{display:flex;gap:12px;margin-bottom:16px;}
+  input[type=color]{width:50px;height:36px;border:none;cursor:pointer;}
+  button{padding:8px 16px;background:#e94560;color:#fff;border:none;border-radius:6px;cursor:pointer;}
+  #grid{display:grid;gap:1px;background:#333;}
+  .cell{width:20px;height:20px;background:#fff;cursor:pointer;}
+  .cell:hover{opacity:.8;}
+</style></head>
+<body>
+<h1>🎨 Pixel Art Generator</h1>
+<div id="controls">
+  <label>Color: <input type="color" id="color" value="#e94560"></label>
+  <button onclick="clearGrid()">Clear</button>
+  <button onclick="saveArt()">Save PNG</button>
+</div>
+<div id="grid"></div>
+<canvas id="canvas" style="display:none"></canvas>
+<script>
+const COLS=32,ROWS=24;
+const grid=document.getElementById("grid");
+grid.style.gridTemplateColumns=`repeat(${COLS},20px)`;
+let painting=false;
+for(let i=0;i<COLS*ROWS;i++){
+  const c=document.createElement("div");
+  c.className="cell";
+  c.addEventListener("mousedown",()=>{painting=true;paint(c);});
+  c.addEventListener("mouseover",()=>{if(painting)paint(c);});
+  grid.appendChild(c);
+}
+document.addEventListener("mouseup",()=>painting=false);
+function paint(cell){cell.style.background=document.getElementById("color").value;}
+function clearGrid(){document.querySelectorAll(".cell").forEach(c=>c.style.background="#fff");}
+function saveArt(){
+  const cv=document.getElementById("canvas");
+  cv.width=COLS*20;cv.height=ROWS*20;
+  const ctx=cv.getContext("2d");
+  document.querySelectorAll(".cell").forEach((c,i)=>{
+    ctx.fillStyle=c.style.background||"#fff";
+    ctx.fillRect((i%COLS)*20,Math.floor(i/COLS)*20,20,20);
+  });
+  const a=document.createElement("a");a.download="pixel-art.png";a.href=cv.toDataURL();a.click();
+}
+</script></body></html>
